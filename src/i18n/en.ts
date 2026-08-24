@@ -1,0 +1,57 @@
+import type { sl } from './sl';
+
+export const en: Record<keyof typeof sl, string> = {
+  'app.title': '2upn2revolut',
+  'app.tagline': 'Turns a UPN code into an EPC code Revolut can read',
+
+  'step.pair': 'Pair',
+  'step.scan': 'Scan',
+  'step.pay': 'Pay',
+
+  'host.mobileWarning': 'Open this page on a computer, then scan its code with this phone.',
+  'host.pairTitle': 'Pair your phone',
+  'host.pairInstruction': 'Scan this code with your phone',
+  'host.pairHint': 'Use your normal camera app — nothing to install.',
+  'host.pairPending': 'Preparing the connection …',
+  'host.waitingTitle': 'Phone connected',
+  'host.waitingInstruction': 'Now scan the UPN code on your bill with your phone',
+  'host.displayTitle': 'Scan this code with Revolut',
+  'host.displayInstruction': 'Open the scanner in Revolut and point it at this screen',
+  'host.recent': 'Recent payments',
+  'host.recentHint': 'Click to show again',
+
+  'phone.connectingTitle': 'Connecting …',
+  'phone.connectingInstruction': 'Opening the link to your computer',
+  'phone.scanTitle': 'Scan the UPN code',
+  'phone.scanInstruction': 'Point your phone at the QR code on the bill',
+  'phone.cameraDenied': 'Camera access denied',
+  'phone.cameraDeniedHelp': 'Allow the camera in your browser settings, then try again.',
+  'phone.cameraNotFound': 'No camera found',
+  'phone.cameraInsecure': 'The camera only works over HTTPS',
+  'phone.cameraRetry': 'Try again',
+  'phone.payTitle': 'Pay in Revolut',
+  'phone.payInstruction': "Open Revolut, tap Scan, and point your phone at your computer's screen",
+  'phone.openRevolut': 'Open Revolut',
+  'phone.revolutFailed': 'Revolut did not open. Please open it manually.',
+  'phone.revolutStore': 'Go to revolut.com',
+  'phone.scanAnother': 'Scan another bill',
+  'phone.sent': 'Sent to your computer',
+
+  'payment.name': 'Recipient',
+  'payment.iban': 'IBAN',
+  'payment.amount': 'Amount',
+  'payment.purpose': 'Purpose code',
+  'payment.reference': 'Reference',
+  'payment.remittance': 'Payment purpose',
+
+  'error.peerUnavailable': 'The desktop page was closed. Reopen it and scan its code again.',
+  'error.browserIncompatible': 'This browser cannot do WebRTC.',
+  'error.network': 'Pairing service unavailable, retrying …',
+  'error.serverError': 'The pairing service returned an error.',
+  'error.unknown': 'Something unexpected went wrong.',
+  'error.upnMalformed': 'That UPN code is malformed.',
+  'error.epcAmount': 'The amount on this bill is not valid for an EPC code.',
+  'error.epcIban': 'This bill has no IBAN.',
+
+  'lang.label': 'Language',
+};
