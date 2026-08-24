@@ -110,6 +110,9 @@ export function createPeerJsTransport(): Transport {
           continue;
         }
 
+        // The silent-retry contract covers unavailable-id retry attempts only;
+        // exhausting MAX_ID_RETRIES (or a non-retryable/non-network error) is a
+        // genuine failure and is deliberately surfaced here, not swallowed.
         emit({ type: 'error', code });
         throw error;
       }
@@ -132,6 +135,11 @@ export function createPeerJsTransport(): Transport {
   return {
     async host(): Promise<string> {
       const created = await createPeer();
+      if (closed) {
+        // Torn down while the peer was still opening: don't revive it.
+        created.destroy();
+        throw new Error('transport closed');
+      }
       attachPeer(created);
       created.on('connection', (conn) => {
         // Last phone in wins; an earlier stale connection is dropped.
@@ -144,12 +152,18 @@ export function createPeerJsTransport(): Transport {
 
     async join(peerId: string): Promise<void> {
       const created = await createPeer();
+      if (closed) {
+        // Torn down while the peer was still opening: don't revive it.
+        created.destroy();
+        throw new Error('transport closed');
+      }
       attachPeer(created);
-      emit({ type: 'open', peerId });
+      emit({ type: 'open', peerId: created.id });
       attachConnection(created.connect(peerId, { reliable: true }), true);
     },
 
     send(message: WireMessage): void {
+      if (closed) return;
       connection?.send(message);
     },
 
