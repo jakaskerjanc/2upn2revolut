@@ -22,11 +22,20 @@ export type EpcBuildResult =
 const ISO_11649 = /^RF\d{2}/;
 
 /**
+ * ISO 11649's electronic representation has no separators and is uppercase.
+ * Used both to detect an ISO 11649 reference and to normalize one before it
+ * is written into the structured EPC field, so the two paths cannot drift.
+ */
+function normalizeIso11649(reference: string): string {
+  return reference.replace(/\s+/g, '').toUpperCase();
+}
+
+/**
  * True for ISO 11649 creditor references only. Slovenian SI-model references
  * are not ISO 11649 and must not go in the structured EPC field.
  */
 export function isIso11649Reference(reference: string): boolean {
-  return ISO_11649.test(reference.replace(/\s+/g, '').toUpperCase());
+  return ISO_11649.test(normalizeIso11649(reference));
 }
 
 function truncate(value: string, max: number): string {
@@ -52,7 +61,10 @@ export function buildEpcPayload(payment: Payment): EpcBuildResult {
   if (!iban) return { ok: false, reason: 'missing-iban' };
 
   const reference = payment.reference.trim();
-  const structured = isIso11649Reference(reference) ? reference : '';
+  // Field 10 carries the canonical ISO 11649 form (no separators, uppercase).
+  // Field 11 keeps an SI-model reference verbatim — it's free text there and
+  // the bill's own formatting is what the creditor reads.
+  const structured = isIso11649Reference(reference) ? normalizeIso11649(reference) : '';
   // An SI-model reference leads the unstructured field: the creditor
   // reconciles on it, and line 11 is the one that gets cut at 140.
   const unstructuredParts: string[] = structured ? [] : [reference];

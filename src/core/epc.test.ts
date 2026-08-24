@@ -73,6 +73,18 @@ describe('reference routing', () => {
     expect(out[9]).toBe('');
     expect(out[10]).toBe('Plačilo računa');
   });
+
+  it('normalizes a spaced RF reference to canonical form in the structured field', () => {
+    const out = lines({ ...base, reference: 'RF18 5390 0754 7034' });
+    expect(out[9]).toBe('RF18539007547034');
+    expect(out[10]).toBe('Plačilo računa');
+  });
+
+  it('normalizes a lowercase RF reference to canonical form in the structured field', () => {
+    const out = lines({ ...base, reference: 'rf18539007547034' });
+    expect(out[9]).toBe('RF18539007547034');
+    expect(out[10]).toBe('Plačilo računa');
+  });
 });
 
 describe('field limits', () => {
