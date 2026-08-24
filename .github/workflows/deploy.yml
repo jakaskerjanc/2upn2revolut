@@ -10,9 +10,13 @@ permissions:
   pages: write
   id-token: write
 
+# Production deployments are allowed to finish rather than being cancelled:
+# typecheck, test, build, and deploy-pages all run in this one job, so a
+# cancel mid-run can land inside deploy-pages and leave the Pages
+# environment's deployment lock stuck. Consecutive pushes queue instead.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:

@@ -40,7 +40,7 @@ Full design notes: [`docs/superpowers/specs/2026-08-24-2upn2revolut-design.md`](
 ```bash
 pnpm install
 pnpm dev        # http://localhost:5173/2upn2revolut/
-pnpm test       # vitest over core/, transport/, session/
+pnpm test       # vitest over core/, transport/, session/, router
 pnpm typecheck
 pnpm build
 ```
