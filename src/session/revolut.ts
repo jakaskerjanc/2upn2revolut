@@ -1,5 +1,5 @@
-/** Revolut documents no consumer deep link. The bare scheme is the best guess. */
-export const DEFAULT_REVOLUT_LINK = 'revolut://';
+/** Revolut documents no consumer deep link; the bare scheme does not open the app. */
+export const DEFAULT_REVOLUT_LINK = 'revolut://payments';
 
 /** Shown instead of the button when the deep link demonstrably did not launch. */
 export const REVOLUT_WEB_URL = 'https://www.revolut.com/';

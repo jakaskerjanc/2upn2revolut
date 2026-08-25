@@ -61,7 +61,9 @@ export function createPeerJsTransport(): Transport {
     });
 
     conn.on('close', () => {
-      if (connection === conn) connection = null;
+      // A stale connection superseded by a newer one must not clobber its state.
+      if (connection !== conn) return;
+      connection = null;
       emit({ type: 'disconnected' });
     });
 
