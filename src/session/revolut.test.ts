@@ -4,7 +4,7 @@ import { DEFAULT_REVOLUT_LINK, resolveRevolutLink } from './revolut';
 describe('resolveRevolutLink', () => {
   it('falls back to the default link', () => {
     expect(resolveRevolutLink('', undefined)).toBe(DEFAULT_REVOLUT_LINK);
-    expect(DEFAULT_REVOLUT_LINK).toBe('revolut://payments');
+    expect(DEFAULT_REVOLUT_LINK).toBe('revolut://app/payments');
   });
 
   it('prefers the build-time override over the default', () => {

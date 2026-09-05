@@ -51,24 +51,24 @@ describe('reference routing', () => {
     expect(isIso11649Reference('')).toBe(false);
   });
 
-  it('puts an RF reference in the structured field and leaves field 11 to the remittance', () => {
+  it('puts an RF reference in the structured field and leaves field 11 empty', () => {
     const out = lines({ ...base, reference: 'RF18539007547034' });
     expect(out[9]).toBe('RF18539007547034');
-    expect(out[10]).toBe('Plačilo računa');
+    expect(out[10]).toBe('');
   });
 
-  it('puts an SI reference in the unstructured field, ahead of the remittance', () => {
+  it('puts an SI reference alone in the unstructured field, never merged with remittance', () => {
     const out = lines(base);
     expect(out[9]).toBe('');
-    expect(out[10]).toBe('SI00 1234-5678 Plačilo računa');
+    expect(out[10]).toBe('SI00 1234-5678');
   });
 
-  it('omits the separator when there is no remittance', () => {
+  it('is unaffected by remittance when a reference is present', () => {
     const out = lines({ ...base, remittance: '' });
     expect(out[10]).toBe('SI00 1234-5678');
   });
 
-  it('leaves both reference fields empty when the bill carries no reference', () => {
+  it('falls back to the remittance when the bill carries no reference', () => {
     const out = lines({ ...base, reference: '' });
     expect(out[9]).toBe('');
     expect(out[10]).toBe('Plačilo računa');
@@ -77,13 +77,13 @@ describe('reference routing', () => {
   it('normalizes a spaced RF reference to canonical form in the structured field', () => {
     const out = lines({ ...base, reference: 'RF18 5390 0754 7034' });
     expect(out[9]).toBe('RF18539007547034');
-    expect(out[10]).toBe('Plačilo računa');
+    expect(out[10]).toBe('');
   });
 
   it('normalizes a lowercase RF reference to canonical form in the structured field', () => {
     const out = lines({ ...base, reference: 'rf18539007547034' });
     expect(out[9]).toBe('RF18539007547034');
-    expect(out[10]).toBe('Plačilo računa');
+    expect(out[10]).toBe('');
   });
 });
 
@@ -114,10 +114,9 @@ describe('field limits', () => {
     expect(out[10]).toBe('R'.repeat(140));
   });
 
-  it('never lets a long remittance truncate the reference out of field 11', () => {
+  it('ignores a long remittance entirely when a reference is present', () => {
     const out = lines({ ...base, remittance: 'R'.repeat(200) });
-    expect(out[10]).toHaveLength(140);
-    expect(out[10]!.startsWith('SI00 1234-5678 ')).toBe(true);
+    expect(out[10]).toBe('SI00 1234-5678');
   });
 });
 
