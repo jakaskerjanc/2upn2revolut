@@ -21,7 +21,7 @@ const TRANSPORT_ERROR_KEYS: Record<TransportErrorCode, TranslationKey> = {
 
 export default function App() {
   const route = useRoute();
-  const { transportError } = useAppState();
+  const { transportError, lang } = useAppState();
   const t = useT();
   const [stepIndex, setStepIndex] = useState(0);
   const onStepChange = useCallback((index: number) => setStepIndex(index), []);
@@ -31,6 +31,10 @@ export default function App() {
     toast.error(t(TRANSPORT_ERROR_KEYS[transportError]));
     setTransportError(null);
   }, [transportError, t]);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   return (
     <TooltipProvider>

@@ -65,10 +65,9 @@ export function buildEpcPayload(payment: Payment): EpcBuildResult {
   // Field 11 keeps an SI-model reference verbatim — it's free text there and
   // the bill's own formatting is what the creditor reads.
   const structured = isIso11649Reference(reference) ? normalizeIso11649(reference) : '';
-  // An SI-model reference leads the unstructured field: the creditor
-  // reconciles on it, and line 11 is the one that gets cut at 140.
-  const unstructuredParts: string[] = structured ? [] : [reference];
-  unstructuredParts.push(payment.remittance.trim());
+  // Reference and remittance never share a field: whichever reference exists
+  // takes its field alone, and remittance only appears when there is no reference.
+  const unstructured = structured ? '' : reference || payment.remittance.trim();
 
   const payload = [
     'BCD',
@@ -81,7 +80,7 @@ export function buildEpcPayload(payment: Payment): EpcBuildResult {
     `EUR${formatEuros(payment.amountCents)}`,
     truncate(payment.purposeCode, MAX.purposeCode),
     truncate(structured, MAX.structuredReference),
-    truncate(unstructuredParts.filter(Boolean).join(' '), MAX.unstructured),
+    truncate(unstructured, MAX.unstructured),
     '', // beneficiary-to-originator information
   ].join('\n');
 

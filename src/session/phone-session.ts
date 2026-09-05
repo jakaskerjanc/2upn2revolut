@@ -49,6 +49,11 @@ function handleDecode(text: string): void {
     return;
   }
 
+  if (!getState().connected) {
+    notice('error.peerUnavailable');
+    return;
+  }
+
   transport?.send(paymentMessage(epc.payload, decoded.payment));
   addPayment({ id: crypto.randomUUID(), epc: epc.payload, payment: decoded.payment });
   stopScanner();
