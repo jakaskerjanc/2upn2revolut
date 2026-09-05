@@ -32,6 +32,7 @@ export const en: Record<keyof typeof sl, string> = {
   'phone.payTitle': 'Pay in Revolut',
   'phone.payInstruction': "Open Revolut, tap Scan, and point your phone at your computer's screen",
   'phone.openRevolut': 'Open Revolut',
+  'phone.epcInstructions': 'How to find the scanner in Revolut',
   'phone.revolutFailed': 'Revolut did not open. Please open it manually.',
   'phone.revolutStore': 'Go to revolut.com',
   'phone.scanAnother': 'Scan another bill',

@@ -31,6 +31,7 @@ export const sl = {
   'phone.payTitle': 'Plačajte v Revolutu',
   'phone.payInstruction': 'Odprite Revolut, tapnite Skeniraj in usmerite telefon v zaslon računalnika',
   'phone.openRevolut': 'Odpri Revolut',
+  'phone.epcInstructions': 'Kako najti skener v Revolutu',
   'phone.revolutFailed': 'Revoluta ni bilo mogoče odpreti. Odprite ga ročno.',
   'phone.revolutStore': 'Pojdi na revolut.com',
   'phone.scanAnother': 'Skeniraj naslednjo položnico',

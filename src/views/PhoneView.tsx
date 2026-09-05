@@ -4,6 +4,8 @@ import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { PaymentSummary } from '../components/PaymentSummary';
+import instructionStep1 from '../assets/revolut-instruction-1.jpg';
+import instructionStep2 from '../assets/revolut-instruction-2.jpg';
 import { attachScanner, scanAnother, startPhoneSession } from '../session/phone-session';
 import { phoneStep } from '../session/steps';
 import { openRevolut, resolveRevolutLink, REVOLUT_WEB_URL } from '../session/revolut';
@@ -83,6 +85,21 @@ function PhoneView({
             {t('phone.openRevolut')}
           </Button>
         )}
+        <div className="flex w-full max-w-sm flex-col items-center gap-2 px-4">
+          <p className="text-center text-sm text-muted">{t('phone.epcInstructions')}</p>
+          <div className="flex w-full gap-3">
+            <img
+              src={instructionStep1}
+              alt={t('phone.epcInstructions')}
+              className="rounded-card w-1/2 shadow-sm"
+            />
+            <img
+              src={instructionStep2}
+              alt={t('phone.epcInstructions')}
+              className="rounded-card w-1/2 shadow-sm"
+            />
+          </div>
+        </div>
         <Card className="w-full max-w-sm">
           <CardContent>
             <PaymentSummary payment={sent.payment} />
