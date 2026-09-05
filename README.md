@@ -46,8 +46,10 @@ pnpm build
 ```
 
 The camera needs a secure context. `localhost` counts as one, so desktop development works
-without certificates; to test the phone side against a dev server on your LAN you need
-HTTPS, or just deploy and test against the live site.
+without certificates. To test the phone side against a dev server on your LAN, generate a
+self-signed cert once with `pnpm certs` — `vite.config.ts` picks it up automatically and
+serves dev over HTTPS (the phone browser will show an untrusted-cert warning to click
+through). Re-run `pnpm certs --force` if your LAN IP changes.
 
 ### Configuration
 
