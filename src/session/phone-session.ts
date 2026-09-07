@@ -1,6 +1,5 @@
-import { buildEpcPayload } from '../core/epc';
-import { decodeUpn } from '../core/upn';
 import type { TranslationKey } from '../i18n';
+import { ingestErrorKey, ingestUpn } from './ingest';
 import { startScanner, type ScannerHandle } from './scanner';
 import { addPayment, getState, resetPayments, setCameraError, setNotice } from './store';
 
@@ -23,20 +22,14 @@ function handleDecode(text: string): void {
   // Already scanned this bill; ignore whatever is still in frame.
   if (getState().payments.length > 0) return;
 
-  const decoded = decodeUpn(text);
-  if (!decoded.ok) {
+  const result = ingestUpn(text);
+  if (!result.ok) {
     // 'not-upn' is the normal state of a viewfinder — stay silent and keep scanning.
-    if (decoded.reason === 'malformed') notice('error.upnMalformed');
+    if (result.reason !== 'not-upn') notice(ingestErrorKey(result.reason));
     return;
   }
 
-  const epc = buildEpcPayload(decoded.payment);
-  if (!epc.ok) {
-    notice(epc.reason === 'missing-iban' ? 'error.epcIban' : 'error.epcAmount');
-    return;
-  }
-
-  addPayment({ id: crypto.randomUUID(), epc: epc.payload, payment: decoded.payment });
+  addPayment(result.entry);
   stopScanner();
 }
 
