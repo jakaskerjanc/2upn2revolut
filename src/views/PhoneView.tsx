@@ -4,14 +4,17 @@ import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { PaymentSummary } from '../components/PaymentSummary';
-import { attachScanner, scanAnother, startPhoneSession } from '../session/phone-session';
+import { QrCode } from '../components/QrCode';
+import { dataUrlToBlob, qrPngDataUrl } from '../core/qr-image';
+import { attachScanner, scanAnother } from '../session/phone-session';
+import { saveQrImage } from '../session/save';
 import { phoneStep } from '../session/steps';
 import { openRevolut, resolveRevolutLink, REVOLUT_WEB_URL } from '../session/revolut';
 import { currentPayment, setNotice, useAppState, type CameraError } from '../session/store';
 import { useT } from '../session/useT';
 import type { TranslationKey } from '../i18n';
 
-const STEP_INDEX = { connect: 0, scan: 1, pay: 2 } as const;
+const STEP_INDEX = { scan: 0, pay: 1 } as const;
 
 const CAMERA_ERROR_KEYS: Record<CameraError, TranslationKey> = {
   denied: 'phone.cameraDenied',
@@ -20,22 +23,12 @@ const CAMERA_ERROR_KEYS: Record<CameraError, TranslationKey> = {
   unknown: 'phone.cameraDenied',
 };
 
-function PhoneView({
-  peerId,
-  onStepChange,
-}: {
-  peerId: string;
-  onStepChange: (index: number) => void;
-}) {
+function PhoneView({ onStepChange }: { onStepChange: (index: number) => void }) {
   const state = useAppState();
   const t = useT();
   const step = phoneStep(state);
   const sent = currentPayment(state);
   const [revolutFailed, setRevolutFailed] = useState(false);
-
-  useEffect(() => {
-    startPhoneSession(peerId);
-  }, [peerId]);
 
   useEffect(() => {
     onStepChange(STEP_INDEX[step]);
@@ -51,9 +44,21 @@ function PhoneView({
     attachScanner(element);
   }, []);
 
+  const onSave = useCallback(async () => {
+    if (!sent) return;
+    try {
+      // Must run straight off the tap: iOS blocks share()/download otherwise.
+      const blob = dataUrlToBlob(await qrPngDataUrl(sent.epc));
+      await saveQrImage(blob, 'epc-qr.png');
+    } catch (error) {
+      // A cancelled share sheet is not a failure; anything else is.
+      if ((error as { name?: string })?.name === 'AbortError') return;
+      setNotice('error.saveFailed');
+    }
+  }, [sent]);
+
   const onOpenRevolut = useCallback(() => {
     setRevolutFailed(false);
-    // Must run straight off the tap: iOS blocks programmatic scheme navigation.
     openRevolut(
       resolveRevolutLink(window.location.search, import.meta.env.VITE_REVOLUT_DEEPLINK),
       () => setRevolutFailed(true),
@@ -63,13 +68,16 @@ function PhoneView({
   if (step === 'pay' && sent) {
     return (
       <>
-        <Badge>{t('phone.sent')}</Badge>
-        <p className="font-display max-w-sm text-center text-2xl leading-tight text-balance">
+        <Badge>{t('phone.ready')}</Badge>
+        <QrCode value={sent.epc} size={240} label={t('phone.saveInstruction')} />
+        <p className="max-w-sm text-center text-sm text-muted">{t('phone.saveHelp')}</p>
+        <Button size="lg" onClick={onSave}>
+          {t('phone.saveButton')}
+        </Button>
+        <p className="font-display max-w-sm text-center text-xl leading-tight text-balance">
           {t('phone.payInstruction')}
         </p>
         {revolutFailed ? (
-          // The scheme is not registered on this device. Swap the accelerator for
-          // something that definitely works; the instruction above still stands.
           <div className="flex max-w-sm flex-col items-center gap-3">
             <p className="text-center text-sm text-muted">{t('phone.revolutFailed')}</p>
             <Button asChild variant="outline">
@@ -79,7 +87,7 @@ function PhoneView({
             </Button>
           </div>
         ) : (
-          <Button size="lg" onClick={onOpenRevolut}>
+          <Button variant="outline" onClick={onOpenRevolut}>
             {t('phone.openRevolut')}
           </Button>
         )}
@@ -95,39 +103,28 @@ function PhoneView({
     );
   }
 
-  if (step === 'scan') {
-    return (
-      <>
-        <p className="font-display max-w-sm text-center text-2xl leading-tight text-balance">
-          {t('phone.scanInstruction')}
-        </p>
-        {state.cameraError ? (
-          <div className="flex max-w-sm flex-col items-center gap-4 text-center">
-            <p className="text-ink">{t(CAMERA_ERROR_KEYS[state.cameraError])}</p>
-            <p className="text-sm text-muted">{t('phone.cameraDeniedHelp')}</p>
-            <Button variant="outline" onClick={() => window.location.reload()}>
-              {t('phone.cameraRetry')}
-            </Button>
-          </div>
-        ) : (
-          <video
-            ref={videoRef}
-            playsInline
-            muted
-            aria-label={t('phone.scanTitle')}
-            className="rounded-card w-[min(88vw,26rem)] bg-ink/90 object-cover shadow-sm"
-          />
-        )}
-      </>
-    );
-  }
-
   return (
     <>
       <p className="font-display max-w-sm text-center text-2xl leading-tight text-balance">
-        {t('phone.connectingInstruction')}
+        {t('phone.scanInstruction')}
       </p>
-      <p className="text-sm text-muted">{t('phone.connectingTitle')}</p>
+      {state.cameraError ? (
+        <div className="flex max-w-sm flex-col items-center gap-4 text-center">
+          <p className="text-ink">{t(CAMERA_ERROR_KEYS[state.cameraError])}</p>
+          <p className="text-sm text-muted">{t('phone.cameraDeniedHelp')}</p>
+          <Button variant="outline" onClick={() => window.location.reload()}>
+            {t('phone.cameraRetry')}
+          </Button>
+        </div>
+      ) : (
+        <video
+          ref={videoRef}
+          playsInline
+          muted
+          aria-label={t('phone.scanTitle')}
+          className="rounded-card w-[min(88vw,26rem)] bg-ink/90 object-cover shadow-sm"
+        />
+      )}
     </>
   );
 }

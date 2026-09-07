@@ -1,36 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppShell } from './components/AppShell';
 import { Toaster } from './components/ui/toaster';
 import { TooltipProvider } from './components/ui/tooltip';
-import { useRoute } from './router';
-import { setTransportError, useAppState } from './session/store';
-import { useT } from './session/useT';
-import { HostView } from './views/HostView';
+import { detectDevice } from './device';
+import { useAppState } from './session/store';
+import { DesktopView } from './views/DesktopView';
 import { PhoneView } from './views/PhoneView';
-import type { TranslationKey } from './i18n';
-import type { TransportErrorCode } from './transport/types';
-
-const TRANSPORT_ERROR_KEYS: Record<TransportErrorCode, TranslationKey> = {
-  'peer-unavailable': 'error.peerUnavailable',
-  'browser-incompatible': 'error.browserIncompatible',
-  network: 'error.network',
-  'server-error': 'error.serverError',
-  unknown: 'error.unknown',
-};
 
 export default function App() {
-  const route = useRoute();
-  const { transportError, lang } = useAppState();
-  const t = useT();
+  const { lang } = useAppState();
+  const device = useMemo(() => detectDevice(), []);
   const [stepIndex, setStepIndex] = useState(0);
   const onStepChange = useCallback((index: number) => setStepIndex(index), []);
-
-  useEffect(() => {
-    if (!transportError) return;
-    toast.error(t(TRANSPORT_ERROR_KEYS[transportError]));
-    setTransportError(null);
-  }, [transportError, t]);
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -39,11 +20,7 @@ export default function App() {
   return (
     <TooltipProvider>
       <AppShell activeIndex={stepIndex}>
-        {route.name === 'host' ? (
-          <HostView onStepChange={onStepChange} />
-        ) : (
-          <PhoneView peerId={route.peerId} onStepChange={onStepChange} />
-        )}
+        {device === 'desktop' ? <DesktopView /> : <PhoneView onStepChange={onStepChange} />}
       </AppShell>
       <Toaster />
     </TooltipProvider>
