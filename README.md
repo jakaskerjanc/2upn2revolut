@@ -1,46 +1,43 @@
 # 2upn2revolut
 
-Revolut can scan EPC (SEPA) QR codes but not Slovenian UPN QR codes. This bridges the gap:
-your phone scans the UPN QR on a paper bill, converts it to EPC, and relays it to your
-desktop screen, which shows the EPC QR big enough for Revolut on that same phone to scan.
+Revolut can scan EPC (SEPA) QR codes but not Slovenian UPN QR codes. This phone tool bridges
+the gap: scan the UPN QR on a paper bill, it converts it to EPC, and you save the EPC QR as
+an image to import into Revolut.
 
 **https://jakaskerjanc.github.io/2upn2revolut/**
 
 ## How it works
 
-1. Open the site on a computer. It shows a pairing QR.
-2. Scan that with your phone's normal camera app — no install, no typing.
-3. The phone opens already paired, with the camera live. Point it at the UPN QR on your bill.
-4. The desktop swaps the pairing QR for the EPC QR. Open Revolut — the button jumps
-   straight to its QR scanner — and point it at the screen.
+1. Open the site on your phone. Point the camera at the UPN QR on your bill.
+2. The app builds the EPC QR and offers a Save/Share button — the QR itself is always
+   visible too, so you can long-press it and save it to your photos directly.
+3. Open Revolut and import the saved image from your gallery.
 
-Two scans, zero typing. Both devices show the same three-step guide (Pair → Scan → Pay),
-each displaying only its own next action.
+One scan, zero typing.
 
-## Why a second device
+## On a computer
 
-Revolut scans a QR with the same phone camera that would have to be pointed at the bill.
-A phone cannot show a QR to itself, so the desktop screen acts as the display surface.
+Opening the site on a computer shows a "use your phone" screen with a QR that encodes the
+app URL — scan it with your phone's camera app to continue there.
 
 ## Design
 
-There is no server. Pairing and messaging run over WebRTC via the public PeerJS broker,
-so the whole app deploys as a static site on GitHub Pages. The pairing URL carries the
-peer id, which is why there is nothing to type.
+There is no server and no networking. QR generation and PNG encoding are fully client-side
+via the `qrcode` library, so the whole app deploys as a static site on GitHub Pages.
 
 Amounts are integer cents throughout. `RF` (ISO 11649) references go in the EPC structured
 reference field; Slovenian `SI`-model references go in the unstructured field, ahead of the
 payment purpose, so a long purpose text can never truncate the reference the creditor
 reconciles on.
 
-Full design notes: [`docs/superpowers/specs/2026-08-24-2upn2revolut-design.md`](docs/superpowers/specs/2026-08-24-2upn2revolut-design.md).
+Full design notes: [`docs/superpowers/specs/2026-09-07-phone-only-rework-design.md`](docs/superpowers/specs/2026-09-07-phone-only-rework-design.md).
 
 ## Development
 
 ```bash
 pnpm install
 pnpm dev        # http://localhost:5173/2upn2revolut/
-pnpm test       # vitest over core/, transport/, session/, router
+pnpm test       # vitest
 pnpm typecheck
 pnpm build
 ```
@@ -61,14 +58,6 @@ The deep link opens Revolut straight on its QR scanner. It is undocumented, so t
 is still best-effort: it detects whether the app actually launched and, if not, falls back
 to a link to revolut.com plus the written "open it manually and tap Scan" instruction.
 `?revolut=` on the phone URL overrides it per session.
-
-## Limitations
-
-- The public PeerJS broker is a third-party dependency with a documented history of rate
-  limiting. If it is down, pairing fails; the app reports it and retries with backoff.
-- No TURN server. Phone and desktop on the same Wi-Fi connect directly, which is the
-  expected setting.
-- Payment history is the last five EPC codes, in memory only.
 
 ## License
 
