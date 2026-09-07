@@ -20,7 +20,11 @@ export default function App() {
   return (
     <TooltipProvider>
       <AppShell activeIndex={stepIndex}>
-        {device === 'desktop' ? <DesktopView /> : <PhoneView onStepChange={onStepChange} />}
+        {device === 'desktop' ? (
+          <DesktopView onStepChange={onStepChange} />
+        ) : (
+          <PhoneView onStepChange={onStepChange} />
+        )}
       </AppShell>
       <Toaster />
     </TooltipProvider>

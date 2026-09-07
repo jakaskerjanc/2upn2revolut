@@ -51,3 +51,20 @@ export function startScanner(
     },
   };
 }
+
+/**
+ * Decode a QR from a still image (upload, paste, or drop) instead of the live
+ * camera. Returns the decoded text, or null when the image holds no QR zxing
+ * can read — the desktop caller surfaces null as "no code found in that image".
+ */
+export async function decodeImageFile(file: Blob): Promise<string | null> {
+  const url = URL.createObjectURL(file);
+  try {
+    const result = await new BrowserQRCodeReader().decodeFromImageUrl(url);
+    return result.getText();
+  } catch {
+    return null;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
