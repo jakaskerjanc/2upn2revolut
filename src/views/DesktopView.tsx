@@ -32,12 +32,15 @@ function DesktopView({ onStepChange }: { onStepChange: (index: number) => void }
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<TranslationKey | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const decodingRef = useRef(false);
 
   useEffect(() => {
     onStepChange(sent ? STEP_INDEX.result : STEP_INDEX.input);
   }, [sent, onStepChange]);
 
   const handleFile = useCallback(async (file: Blob) => {
+    if (decodingRef.current) return;
+    decodingRef.current = true;
     setError(null);
     setBusy(true);
     try {
@@ -53,6 +56,7 @@ function DesktopView({ onStepChange }: { onStepChange: (index: number) => void }
       }
       addPayment(result.entry); // flips currentPayment -> result screen
     } finally {
+      decodingRef.current = false;
       setBusy(false);
     }
   }, []);
@@ -80,7 +84,7 @@ function DesktopView({ onStepChange }: { onStepChange: (index: number) => void }
     return (
       <>
         <Badge>{t('phone.ready')}</Badge>
-        <QrCode value={sent.epc} size={240} label={t('desktop.resultInstruction')} />
+        <QrCode value={sent.epc} size={240} label={t('desktop.epcQrLabel')} />
         <p className="font-display max-w-sm text-center text-xl leading-tight text-balance">
           {t('desktop.resultInstruction')}
         </p>

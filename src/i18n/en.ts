@@ -7,8 +7,6 @@ export const en: Record<keyof typeof sl, string> = {
   'step.scan': 'Scan',
   'step.pay': 'Pay',
 
-  'desktop.title': 'Use your phone',
-  'desktop.instruction': 'Scanning the UPN code needs a phone with a camera.',
   'desktop.qrHint': 'Scan this code with your phone to open the page there.',
   'desktop.qrLabel': 'Link to open on your phone',
   'desktop.uploadTitle': 'Convert a UPN code',
@@ -18,6 +16,7 @@ export const en: Record<keyof typeof sl, string> = {
   'desktop.decoding': 'Reading the code…',
   'desktop.orPhoneTitle': 'Or continue on your phone',
   'desktop.resultInstruction': 'Scan this code in Revolut',
+  'desktop.epcQrLabel': 'EPC code for Revolut',
   'desktop.revolutQrCaption': 'No Revolut open? Scan this with your phone to launch it, then scan the code above.',
   'desktop.revolutQrLabel': 'Open Revolut on your phone',
   'desktop.convertAnother': 'Convert another',

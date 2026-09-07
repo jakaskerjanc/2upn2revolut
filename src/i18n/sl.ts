@@ -5,8 +5,6 @@ export const sl = {
   'step.scan': 'Skeniraj',
   'step.pay': 'Plačaj',
 
-  'desktop.title': 'Uporabite telefon',
-  'desktop.instruction': 'Za skeniranje UPN kode potrebujete telefon s fotoaparatom.',
   'desktop.qrHint': 'S telefonom skenirajte to kodo, da odprete stran na njem.',
   'desktop.qrLabel': 'Povezava za odpiranje na telefonu',
   'desktop.uploadTitle': 'Pretvori UPN kodo',
@@ -16,6 +14,7 @@ export const sl = {
   'desktop.decoding': 'Berem kodo …',
   'desktop.orPhoneTitle': 'Ali nadaljujte na telefonu',
   'desktop.resultInstruction': 'To kodo skenirajte v Revolutu',
+  'desktop.epcQrLabel': 'EPC koda za Revolut',
   'desktop.revolutQrCaption': 'Revolut še ni odprt? To kodo skenirajte s telefonom, da ga zaženete, nato skenirajte kodo zgoraj.',
   'desktop.revolutQrLabel': 'Odpri Revolut na telefonu',
   'desktop.convertAnother': 'Pretvori naslednjo',
