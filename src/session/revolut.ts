@@ -1,4 +1,4 @@
-export const DEFAULT_REVOLUT_LINK = 'revolut://app/payments';
+export const DEFAULT_REVOLUT_LINK = 'revolut://app/payments-qr-scan';
 
 /** Shown instead of the button when the deep link demonstrably did not launch. */
 export const REVOLUT_WEB_URL = 'https://www.revolut.com/';

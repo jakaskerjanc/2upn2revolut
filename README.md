@@ -11,8 +11,8 @@ desktop screen, which shows the EPC QR big enough for Revolut on that same phone
 1. Open the site on a computer. It shows a pairing QR.
 2. Scan that with your phone's normal camera app — no install, no typing.
 3. The phone opens already paired, with the camera live. Point it at the UPN QR on your bill.
-4. The desktop swaps the pairing QR for the EPC QR. Open Revolut, tap Scan, point it at
-   the screen.
+4. The desktop swaps the pairing QR for the EPC QR. Open Revolut — the button jumps
+   straight to its QR scanner — and point it at the screen.
 
 Two scans, zero typing. Both devices show the same three-step guide (Pair → Scan → Pay),
 each displaying only its own next action.
@@ -55,11 +55,12 @@ through). Re-run `pnpm certs --force` if your LAN IP changes.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `VITE_REVOLUT_DEEPLINK` | `revolut://` | Deep link the "Open Revolut" button follows |
+| `VITE_REVOLUT_DEEPLINK` | `revolut://app/payments-qr-scan` | Deep link the "Open Revolut" button follows |
 
-Revolut publishes no consumer deep-link scheme, so the button is best-effort: it detects
-whether the app actually launched and falls back to written instructions, which stand on
-their own either way. `?revolut=` on the phone URL overrides it per session.
+The deep link opens Revolut straight on its QR scanner. It is undocumented, so the button
+is still best-effort: it detects whether the app actually launched and, if not, falls back
+to a link to revolut.com plus the written "open it manually and tap Scan" instruction.
+`?revolut=` on the phone URL overrides it per session.
 
 ## Limitations
 
