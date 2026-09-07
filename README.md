@@ -17,8 +17,11 @@ One scan, zero typing.
 
 ## On a computer
 
-Opening the site on a computer shows a "use your phone" screen with a QR that encodes the
-app URL — scan it with your phone's camera app to continue there.
+On a computer you can convert without a phone camera: upload, paste, or drag in an image of
+the bill's UPN QR code. The app decodes it, builds the EPC QR, and shows it on screen — scan
+that with Revolut on your phone. A smaller `revolut://` QR is offered too: scan it with your
+phone to launch Revolut straight on its scanner. The old "continue on your phone" hand-off QR
+stays available as a second option. (Images only — PDFs are not supported.)
 
 ## Design
 
