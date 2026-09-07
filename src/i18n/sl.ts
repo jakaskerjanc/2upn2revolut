@@ -34,7 +34,6 @@ export const sl = {
   'payment.reference': 'Referenca',
   'payment.remittance': 'Namen plačila',
 
-  'error.unknown': 'Prišlo je do nepričakovane napake.',
   'error.upnMalformed': 'Ta UPN koda je poškodovana.',
   'error.epcAmount': 'Znesek na položnici ni veljaven za EPC kodo.',
   'error.epcIban': 'Na položnici ni IBAN številke.',

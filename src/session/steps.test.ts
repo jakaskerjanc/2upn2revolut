@@ -29,6 +29,8 @@ describe('phoneStep', () => {
   });
 
   it('returns to scan when payments are cleared for another bill', () => {
-    expect(phoneStep(state({ payments: [] }))).toBe('scan');
+    const withPayment = state({ payments: [payment] });
+    expect(phoneStep(withPayment)).toBe('pay');
+    expect(phoneStep({ ...withPayment, payments: [] })).toBe('scan');
   });
 });

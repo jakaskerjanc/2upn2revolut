@@ -36,7 +36,6 @@ export const en: Record<keyof typeof sl, string> = {
   'payment.reference': 'Reference',
   'payment.remittance': 'Payment purpose',
 
-  'error.unknown': 'Something unexpected went wrong.',
   'error.upnMalformed': 'That UPN code is malformed.',
   'error.epcAmount': 'The amount on this bill is not valid for an EPC code.',
   'error.epcIban': 'This bill has no IBAN.',
