@@ -18,9 +18,10 @@ function lines(payment: Payment): string[] {
 }
 
 describe('buildEpcPayload structure', () => {
-  it('emits exactly 12 lines in the BCD/SCT order', () => {
+  it('emits the BCD/SCT fields in order, ending at the last populated field', () => {
     const out = lines(base);
-    expect(out).toHaveLength(12);
+    // Field 12 (B2O) is empty and dropped; the SI reference in field 11 is last.
+    expect(out).toHaveLength(11);
     expect(out[0]).toBe('BCD');
     expect(out[1]).toBe('002');
     expect(out[2]).toBe('1');
@@ -30,13 +31,26 @@ describe('buildEpcPayload structure', () => {
     expect(out[6]).toBe('SI56020170014356205');
     expect(out[7]).toBe('EUR123.45');
     expect(out[8]).toBe('OTHR');
-    expect(out[11]).toBe('');
+    expect(out[10]).toBe('SI00 1234-5678');
   });
 
   it('keeps version 002 and the empty BIC line, which UPN requires', () => {
     const out = lines({ ...base, name: 'X' });
     expect(out[1]).toBe('002');
     expect(out[4]).toBe('');
+  });
+
+  it('omits trailing empty fields so the payload never ends with an empty element', () => {
+    const result = buildEpcPayload(base);
+    if (!result.ok) throw new Error('expected ok');
+    expect(result.payload.endsWith('\n')).toBe(false);
+    expect(lines(base).at(-1)).not.toBe('');
+  });
+
+  it('keeps the 8 mandatory fields even when every optional field is empty', () => {
+    const out = lines({ ...base, purposeCode: '', reference: '', remittance: '' });
+    expect(out).toHaveLength(8);
+    expect(out[7]).toBe('EUR123.45');
   });
 });
 
@@ -51,10 +65,11 @@ describe('reference routing', () => {
     expect(isIso11649Reference('')).toBe(false);
   });
 
-  it('puts an RF reference in the structured field and leaves field 11 empty', () => {
+  it('puts an RF reference in the structured field and drops the empty tail', () => {
     const out = lines({ ...base, reference: 'RF18539007547034' });
     expect(out[9]).toBe('RF18539007547034');
-    expect(out[10]).toBe('');
+    // Empty unstructured (11) and B2O (12) are trailing, so the payload ends here.
+    expect(out).toHaveLength(10);
   });
 
   it('puts an SI reference alone in the unstructured field, never merged with remittance', () => {
@@ -77,13 +92,13 @@ describe('reference routing', () => {
   it('normalizes a spaced RF reference to canonical form in the structured field', () => {
     const out = lines({ ...base, reference: 'RF18 5390 0754 7034' });
     expect(out[9]).toBe('RF18539007547034');
-    expect(out[10]).toBe('');
+    expect(out).toHaveLength(10);
   });
 
   it('normalizes a lowercase RF reference to canonical form in the structured field', () => {
     const out = lines({ ...base, reference: 'rf18539007547034' });
     expect(out[9]).toBe('RF18539007547034');
-    expect(out[10]).toBe('');
+    expect(out).toHaveLength(10);
   });
 });
 

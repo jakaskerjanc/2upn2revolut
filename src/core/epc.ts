@@ -69,7 +69,7 @@ export function buildEpcPayload(payment: Payment): EpcBuildResult {
   // takes its field alone, and remittance only appears when there is no reference.
   const unstructured = structured ? '' : reference || payment.remittance.trim();
 
-  const payload = [
+  const fields = [
     'BCD',
     '002',
     '1',
@@ -82,7 +82,16 @@ export function buildEpcPayload(payment: Payment): EpcBuildResult {
     truncate(structured, MAX.structuredReference),
     truncate(unstructured, MAX.unstructured),
     '', // beneficiary-to-originator information
-  ].join('\n');
+  ];
+
+  // EPC069-12 requires trailing empty data elements to be omitted, not emitted
+  // as blank lines. A dangling empty field — the always-empty B2O info, or an
+  // empty unstructured line after an RF reference — makes strict readers like
+  // Revolut reject the code. Fields 1–8 are mandatory; only the optional tail
+  // (purpose, references, B2O) is trimmed.
+  while (fields.length > 8 && fields[fields.length - 1] === '') fields.pop();
+
+  const payload = fields.join('\n');
 
   return { ok: true, payload };
 }
