@@ -11,8 +11,6 @@ import { addPayment, currentPayment, resetPayments, useAppState } from '../sessi
 import { useT } from '../session/useT';
 import type { TranslationKey } from '../i18n';
 
-const STEP_INDEX = { input: 0, result: 1 } as const;
-
 /** Strip the `?device=` override so the phone opens the page cleanly. */
 function appUrl(): string {
   const url = new URL(window.location.href);
@@ -25,7 +23,7 @@ function firstImage(files: Iterable<File>): File | undefined {
   return Array.from(files).find((file) => file.type.startsWith('image/'));
 }
 
-function DesktopView({ onStepChange }: { onStepChange: (index: number) => void }) {
+function DesktopView() {
   const state = useAppState();
   const t = useT();
   const sent = currentPayment(state);
@@ -33,10 +31,6 @@ function DesktopView({ onStepChange }: { onStepChange: (index: number) => void }
   const [error, setError] = useState<TranslationKey | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const decodingRef = useRef(false);
-
-  useEffect(() => {
-    onStepChange(sent ? STEP_INDEX.result : STEP_INDEX.input);
-  }, [sent, onStepChange]);
 
   const handleFile = useCallback(async (file: Blob) => {
     if (decodingRef.current) return;
