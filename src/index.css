@@ -56,6 +56,7 @@
   }
 }
 
+/* Keep the raw :root tokens unlayered: the self-referencing theme entries below (--radius-card, --shadow-card, --font-display) resolve only while the raw declarations outrank @layer theme. */
 @theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);

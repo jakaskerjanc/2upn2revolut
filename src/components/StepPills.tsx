@@ -15,6 +15,7 @@ function StepPills({ activeIndex, tone = 'default' }: StepPillsProps) {
 
   return (
     <ol
+      aria-label={labels.join(' → ')}
       className={cn(
         'flex w-fit items-center gap-1 rounded-full p-1',
         hero ? 'bg-white/15' : 'bg-surface-soft',
@@ -23,7 +24,7 @@ function StepPills({ activeIndex, tone = 'default' }: StepPillsProps) {
       {labels.map((label, index) => {
         const active = index === activeIndex;
         return (
-          <li key={label}>
+          <li key={index}>
             <span
               aria-current={active ? 'step' : undefined}
               className={cn(
@@ -33,7 +34,7 @@ function StepPills({ activeIndex, tone = 'default' }: StepPillsProps) {
                     ? 'bg-white text-hero-from'
                     : 'bg-ink text-on-ink'
                   : hero
-                    ? 'text-white/75'
+                    ? 'text-white'
                     : 'text-muted',
               )}
             >

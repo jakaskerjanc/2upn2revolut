@@ -82,9 +82,11 @@ function PhoneView() {
               <p className="font-display text-5xl leading-none font-medium tracking-[-0.035em] tabular-nums">
                 EUR {formatEuros(sent.payment.amountCents)}
               </p>
-              <p className="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1 text-sm">
-                {sent.payment.name}
-              </p>
+              {sent.payment.name.trim().length > 0 && (
+                <p className="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1 text-sm">
+                  {sent.payment.name}
+                </p>
+              )}
             </>
           ) : (
             <h1 className="font-display text-3xl leading-tight font-medium tracking-[-0.02em]">

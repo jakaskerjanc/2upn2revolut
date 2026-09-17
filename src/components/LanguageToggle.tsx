@@ -35,7 +35,7 @@ function LanguageToggle({ tone = 'default' }: LanguageToggleProps) {
                 ? 'bg-white text-hero-from'
                 : 'bg-ink text-on-ink'
               : hero
-                ? 'text-white/75 hover:text-white'
+                ? 'text-white'
                 : 'text-muted hover:text-ink',
           )}
         >
