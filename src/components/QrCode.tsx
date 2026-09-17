@@ -45,7 +45,7 @@ function QrCode({ value, size, label, className }: QrCodeProps) {
   }, [value, size]);
 
   return (
-    <div className={cn('rounded-card bg-white p-4 shadow-sm', className)}>
+    <div className={cn('rounded-card bg-white p-4 shadow-card', className)}>
       <canvas ref={canvasRef} role="img" aria-label={label} className="block h-auto w-full" />
     </div>
   );
