@@ -17,7 +17,8 @@ export const en: Record<keyof typeof sl, string> = {
   'desktop.orPhoneTitle': 'Or continue on your phone',
   'desktop.resultInstruction': 'Scan this code in Revolut',
   'desktop.epcQrLabel': 'EPC code for Revolut',
-  'desktop.revolutQrCaption': 'No Revolut open? Scan this with your phone to launch it, then scan the code above.',
+  'desktop.revolutHelpToggle': 'Revolut not open yet?',
+  'desktop.revolutHelpCaption': "Scan this with your phone camera to open Revolut's scanner, then scan the payment code above.",
   'desktop.revolutQrLabel': 'Open Revolut on your phone',
   'desktop.convertAnother': 'Convert another',
 
