@@ -6,6 +6,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { AppHeader } from '../components/AppHeader';
 import { PaymentSummary } from '../components/PaymentSummary';
 import { QrCode } from '../components/QrCode';
+import { StepStatus } from '../components/StepStatus';
 import { dataUrlToBlob, qrPngDataUrl } from '../core/qr-image';
 import { attachScanner, scanAnother } from '../session/phone-session';
 import { saveQrImage } from '../session/save';
@@ -64,7 +65,7 @@ function PhoneView() {
 
   return (
     <div className="canvas-glow bg-canvas flex min-h-dvh flex-col">
-      <AppHeader activeIndex={STEP_INDEX[step]} />
+      <AppHeader />
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-6 px-5 pb-16 sm:px-8">
         {step === 'pay' && sent ? (
           <>
@@ -124,6 +125,9 @@ function PhoneView() {
           </>
         )}
       </main>
+      <footer className="flex justify-center px-5 pb-[max(2rem,env(safe-area-inset-bottom))] sm:px-8">
+        <StepStatus activeIndex={STEP_INDEX[step]} />
+      </footer>
     </div>
   );
 }

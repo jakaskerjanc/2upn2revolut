@@ -5,6 +5,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { AppHeader } from '../components/AppHeader';
 import { PaymentSummary } from '../components/PaymentSummary';
 import { QrCode } from '../components/QrCode';
+import { StepStatus } from '../components/StepStatus';
 import { ingestErrorKey, ingestUpn } from '../session/ingest';
 import { resolveRevolutLink } from '../session/revolut';
 import { decodeImageFile } from '../session/scanner';
@@ -78,7 +79,7 @@ function DesktopView() {
     );
     return (
       <div className="canvas-glow bg-canvas flex min-h-dvh flex-col">
-        <AppHeader activeIndex={1} />
+        <AppHeader />
         <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-6 px-5 pb-16 sm:px-8">
           <Badge>{t('phone.ready')}</Badge>
           <QrCode value={sent.epc} size={240} label={t('desktop.epcQrLabel')} />
@@ -98,13 +99,16 @@ function DesktopView() {
             {t('desktop.convertAnother')}
           </Button>
         </main>
+        <footer className="flex justify-center px-5 pb-[max(2rem,env(safe-area-inset-bottom))] sm:px-8">
+          <StepStatus activeIndex={1} />
+        </footer>
       </div>
     );
   }
 
   return (
     <div className="canvas-glow bg-canvas flex min-h-dvh flex-col">
-      <AppHeader activeIndex={0} />
+      <AppHeader />
       <main className="mx-auto grid w-full max-w-5xl flex-1 gap-12 px-5 pb-16 sm:px-8 lg:grid-cols-2 lg:items-center">
         <section className="flex flex-col items-center gap-5 text-center lg:items-start lg:text-left">
           <h1 className="font-display text-5xl leading-[1.05] font-medium tracking-[-0.03em] text-balance">
@@ -146,6 +150,9 @@ function DesktopView() {
           <p className="max-w-sm text-center text-sm text-muted">{t('desktop.qrHint')}</p>
         </aside>
       </main>
+      <footer className="flex justify-center px-5 pb-[max(2rem,env(safe-area-inset-bottom))] sm:px-8">
+        <StepStatus activeIndex={0} />
+      </footer>
     </div>
   );
 }
