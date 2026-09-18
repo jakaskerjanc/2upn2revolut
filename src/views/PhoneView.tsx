@@ -7,7 +7,7 @@ import { LanguageToggle } from '../components/LanguageToggle';
 import { PaymentSummary } from '../components/PaymentSummary';
 import { QrCode } from '../components/QrCode';
 import { Sheet } from '../components/Sheet';
-import { StepPills } from '../components/StepPills';
+import { StepStatus } from '../components/StepStatus';
 import { formatEuros } from '../core/payment';
 import { dataUrlToBlob, qrPngDataUrl } from '../core/qr-image';
 import { attachScanner, scanAnother } from '../session/phone-session';
@@ -73,7 +73,7 @@ function PhoneView() {
           <LanguageToggle tone="hero" />
         </header>
         <div className="flex flex-col gap-3">
-          <StepPills activeIndex={STEP_INDEX[step]} tone="hero" />
+          <StepStatus activeIndex={STEP_INDEX[step]} tone="hero" />
           {step === 'pay' && sent ? (
             <>
               <p className="text-xs font-medium tracking-[0.15em] text-white/80 uppercase">

@@ -5,7 +5,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { LanguageToggle } from '../components/LanguageToggle';
 import { PaymentSummary } from '../components/PaymentSummary';
 import { QrCode } from '../components/QrCode';
-import { StepPills } from '../components/StepPills';
+import { StepStatus } from '../components/StepStatus';
 import { ingestErrorKey, ingestUpn } from '../session/ingest';
 import { resolveRevolutLink } from '../session/revolut';
 import { decodeImageFile } from '../session/scanner';
@@ -31,7 +31,7 @@ function Header({ activeIndex }: { activeIndex: number }) {
     <header className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
       <span className="text-sm font-medium tracking-tight">{t('app.title')}</span>
       <div className="flex items-center gap-3">
-        <StepPills activeIndex={activeIndex} />
+        <StepStatus activeIndex={activeIndex} />
         <LanguageToggle />
       </div>
     </header>
