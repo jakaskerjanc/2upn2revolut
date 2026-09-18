@@ -1,5 +1,5 @@
 export const sl = {
-  'app.title': '2upn2revolut',
+  'app.title': 'upn2revolut',
   'app.tagline': 'UPN koda v EPC kodo, ki jo Revolut zna prebrati',
 
   'step.scan': 'Skeniraj',

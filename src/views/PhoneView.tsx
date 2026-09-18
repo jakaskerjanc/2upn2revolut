@@ -3,8 +3,10 @@ import { toast } from 'sonner';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
+import { AppHeader } from '../components/AppHeader';
 import { PaymentSummary } from '../components/PaymentSummary';
 import { QrCode } from '../components/QrCode';
+import { StepStatus } from '../components/StepStatus';
 import { dataUrlToBlob, qrPngDataUrl } from '../core/qr-image';
 import { attachScanner, scanAnother } from '../session/phone-session';
 import { saveQrImage } from '../session/save';
@@ -23,16 +25,12 @@ const CAMERA_ERROR_KEYS: Record<CameraError, TranslationKey> = {
   unknown: 'phone.cameraDenied',
 };
 
-function PhoneView({ onStepChange }: { onStepChange: (index: number) => void }) {
+function PhoneView() {
   const state = useAppState();
   const t = useT();
   const step = phoneStep(state);
   const sent = currentPayment(state);
   const [revolutFailed, setRevolutFailed] = useState(false);
-
-  useEffect(() => {
-    onStepChange(STEP_INDEX[step]);
-  }, [step, onStepChange]);
 
   useEffect(() => {
     if (!state.notice) return;
@@ -65,67 +63,72 @@ function PhoneView({ onStepChange }: { onStepChange: (index: number) => void }) 
     );
   }, []);
 
-  if (step === 'pay' && sent) {
-    return (
-      <>
-        <Badge>{t('phone.ready')}</Badge>
-        <QrCode value={sent.epc} size={240} label={t('phone.saveInstruction')} />
-        <p className="max-w-sm text-center text-sm text-muted">{t('phone.saveHelp')}</p>
-        <Button size="lg" onClick={onSave}>
-          {t('phone.saveButton')}
-        </Button>
-        <p className="font-display max-w-sm text-center text-xl leading-tight text-balance">
-          {t('phone.payInstruction')}
-        </p>
-        {revolutFailed ? (
-          <div className="flex max-w-sm flex-col items-center gap-3">
-            <p className="text-center text-sm text-muted">{t('phone.revolutFailed')}</p>
-            <Button asChild variant="outline">
-              <a href={REVOLUT_WEB_URL} target="_blank" rel="noreferrer">
-                {t('phone.revolutStore')}
-              </a>
+  return (
+    <div className="canvas-glow bg-canvas flex min-h-dvh flex-col">
+      <AppHeader />
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-6 px-5 pb-16 sm:px-8">
+        {step === 'pay' && sent ? (
+          <>
+            <Badge>{t('phone.ready')}</Badge>
+            <QrCode value={sent.epc} size={240} label={t('phone.saveInstruction')} />
+            <p className="max-w-sm text-center text-sm text-muted">{t('phone.saveHelp')}</p>
+            <Button size="lg" onClick={onSave}>
+              {t('phone.saveButton')}
+            </Button>
+            <p className="font-display max-w-sm text-center text-xl leading-tight text-balance">
+              {t('phone.payInstruction')}
+            </p>
+            {revolutFailed ? (
+              <div className="flex max-w-sm flex-col items-center gap-3">
+                <p className="text-center text-sm text-muted">{t('phone.revolutFailed')}</p>
+                <Button asChild variant="outline">
+                  <a href={REVOLUT_WEB_URL} target="_blank" rel="noreferrer">
+                    {t('phone.revolutStore')}
+                  </a>
+                </Button>
+              </div>
+            ) : (
+              <Button variant="outline" onClick={onOpenRevolut}>
+                {t('phone.openRevolut')}
+              </Button>
+            )}
+            <Card className="w-full max-w-sm">
+              <CardContent>
+                <PaymentSummary payment={sent.payment} />
+              </CardContent>
+            </Card>
+            <Button variant="outline" onClick={scanAnother}>
+              {t('phone.scanAnother')}
+            </Button>
+          </>
+        ) : state.cameraError ? (
+          <div className="flex max-w-sm flex-col items-center gap-4 text-center">
+            <p className="text-ink">{t(CAMERA_ERROR_KEYS[state.cameraError])}</p>
+            <p className="text-sm text-muted">{t('phone.cameraDeniedHelp')}</p>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              {t('phone.cameraRetry')}
             </Button>
           </div>
         ) : (
-          <Button variant="outline" onClick={onOpenRevolut}>
-            {t('phone.openRevolut')}
-          </Button>
+          <>
+            <h1 className="font-display text-center text-3xl leading-tight font-medium tracking-[-0.02em]">
+              {t('phone.scanTitle')}
+            </h1>
+            <p className="max-w-sm text-center text-sm text-muted">{t('phone.scanInstruction')}</p>
+            <video
+              ref={videoRef}
+              playsInline
+              muted
+              aria-label={t('phone.scanTitle')}
+              className="rounded-card w-[min(88vw,26rem)] bg-ink/90 object-cover shadow-sm"
+            />
+          </>
         )}
-        <Card className="w-full max-w-sm">
-          <CardContent>
-            <PaymentSummary payment={sent.payment} />
-          </CardContent>
-        </Card>
-        <Button variant="outline" onClick={scanAnother}>
-          {t('phone.scanAnother')}
-        </Button>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <p className="font-display max-w-sm text-center text-2xl leading-tight text-balance">
-        {t('phone.scanInstruction')}
-      </p>
-      {state.cameraError ? (
-        <div className="flex max-w-sm flex-col items-center gap-4 text-center">
-          <p className="text-ink">{t(CAMERA_ERROR_KEYS[state.cameraError])}</p>
-          <p className="text-sm text-muted">{t('phone.cameraDeniedHelp')}</p>
-          <Button variant="outline" onClick={() => window.location.reload()}>
-            {t('phone.cameraRetry')}
-          </Button>
-        </div>
-      ) : (
-        <video
-          ref={videoRef}
-          playsInline
-          muted
-          aria-label={t('phone.scanTitle')}
-          className="rounded-card w-[min(88vw,26rem)] bg-ink/90 object-cover shadow-sm"
-        />
-      )}
-    </>
+      </main>
+      <footer className="flex justify-center px-5 pb-[max(2rem,env(safe-area-inset-bottom))] sm:px-8">
+        <StepStatus activeIndex={STEP_INDEX[step]} />
+      </footer>
+    </div>
   );
 }
 
