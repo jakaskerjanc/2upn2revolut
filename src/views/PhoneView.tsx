@@ -7,7 +7,7 @@ import { AppHeader } from '../components/AppHeader';
 import { PaymentSummary } from '../components/PaymentSummary';
 import { QrCode } from '../components/QrCode';
 import { StepStatus } from '../components/StepStatus';
-import { dataUrlToBlob, qrPngDataUrl } from '../core/qr-image';
+import { dataUrlToBlob, qrFileName, qrPngDataUrl } from '../core/qr-image';
 import { attachScanner, scanAnother } from '../session/phone-session';
 import { saveQrImage } from '../session/save';
 import { phoneStep } from '../session/steps';
@@ -47,7 +47,7 @@ function PhoneView() {
     try {
       // Must run straight off the tap: iOS blocks share()/download otherwise.
       const blob = dataUrlToBlob(await qrPngDataUrl(sent.epc));
-      await saveQrImage(blob, 'epc-qr.png');
+      await saveQrImage(blob, qrFileName(sent.payment));
     } catch (error) {
       // A cancelled share sheet is not a failure; anything else is.
       if ((error as { name?: string })?.name === 'AbortError') return;

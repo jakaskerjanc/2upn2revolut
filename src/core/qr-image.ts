@@ -1,4 +1,5 @@
 import QRCode from 'qrcode';
+import { formatEuros, type Payment } from './payment';
 
 /**
  * Render a value to a PNG data URL entirely in-process — same encode options
@@ -12,6 +13,23 @@ export function qrPngDataUrl(value: string): Promise<string> {
     width: 512,
     color: { dark: '#000000', light: '#ffffff' },
   });
+}
+
+/**
+ * Name the saved QR image after the payment it encodes, e.g.
+ * "20.00-John-Doe.png" — spaces and punctuation in the recipient name collapse
+ * into single dashes and diacritics are folded to ASCII ("Žiga" -> "Ziga"), so
+ * the file is recognizable in the camera roll instead of another "qr code.png".
+ */
+export function qrFileName(payment: Pick<Payment, 'amountCents' | 'name'>): string {
+  const recipient =
+    payment.name
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\p{L}\p{N}]+/gu, '-')
+      .replace(/^-+|-+$/g, '') || 'payment';
+  return `${formatEuros(payment.amountCents)}-${recipient}.png`;
 }
 
 /** Decode a base64 PNG data URL into a Blob for sharing/downloading. */
