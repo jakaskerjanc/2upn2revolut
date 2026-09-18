@@ -77,9 +77,9 @@ function DesktopView() {
       import.meta.env.VITE_REVOLUT_DEEPLINK,
     );
     return (
-      <div className="canvas-glow bg-canvas min-h-dvh">
+      <div className="canvas-glow bg-canvas flex min-h-dvh flex-col">
         <AppHeader activeIndex={1} />
-        <main className="mx-auto flex w-full max-w-5xl flex-col items-center gap-6 px-5 pb-16 sm:px-8">
+        <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-6 px-5 pb-16 sm:px-8">
           <Badge>{t('phone.ready')}</Badge>
           <QrCode value={sent.epc} size={240} label={t('desktop.epcQrLabel')} />
           <p className="font-display max-w-sm text-center text-2xl leading-tight font-medium text-balance">
@@ -103,9 +103,9 @@ function DesktopView() {
   }
 
   return (
-    <div className="canvas-glow bg-canvas min-h-dvh">
+    <div className="canvas-glow bg-canvas flex min-h-dvh flex-col">
       <AppHeader activeIndex={0} />
-      <main className="mx-auto grid w-full max-w-5xl gap-12 px-5 pb-16 sm:px-8 lg:grid-cols-2 lg:items-center">
+      <main className="mx-auto grid w-full max-w-5xl flex-1 gap-12 px-5 pb-16 sm:px-8 lg:grid-cols-2 lg:items-center">
         <section className="flex flex-col items-center gap-5 text-center lg:items-start lg:text-left">
           <h1 className="font-display text-5xl leading-[1.05] font-medium tracking-[-0.03em] text-balance">
             {t('desktop.uploadTitle')}

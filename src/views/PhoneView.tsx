@@ -63,9 +63,9 @@ function PhoneView() {
   }, []);
 
   return (
-    <div className="canvas-glow bg-canvas min-h-dvh">
+    <div className="canvas-glow bg-canvas flex min-h-dvh flex-col">
       <AppHeader activeIndex={STEP_INDEX[step]} />
-      <main className="mx-auto flex w-full max-w-5xl flex-col items-center gap-6 px-5 pb-16 sm:px-8">
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-6 px-5 pb-16 sm:px-8">
         {step === 'pay' && sent ? (
           <>
             <Badge>{t('phone.ready')}</Badge>
