@@ -1,7 +1,7 @@
 import type { sl } from './sl';
 
 export const en: Record<keyof typeof sl, string> = {
-  'app.title': '2upn2revolut',
+  'app.title': 'upn2revolut',
   'app.tagline': 'Turns a UPN code into an EPC code Revolut can read',
 
   'step.scan': 'Scan',
