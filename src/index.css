@@ -1,7 +1,37 @@
 @import 'tailwindcss';
 
+/*
+ * The Aeonik Pro builds bundled here have consistent vertical metrics —
+ * ascent 950, descent 190, no line gap — and their native split already
+ * centres cap-height ink, so uppercase text can use the font untouched.
+ *
+ * Mixed-case running text needs a different split: descenders reach -206,
+ * past the 190 descent, so lowercase ink rides 0.12em low on the native
+ * metrics. The 75/25 override re-centres it; that is what the plain
+ * 'Aeonik Pro' faces below are for.
+ */
 @font-face {
   font-family: 'Aeonik Pro';
+  src: url('./assets/fonts/AeonikPro-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  ascent-override: 75%;
+  descent-override: 25%;
+}
+
+@font-face {
+  font-family: 'Aeonik Pro';
+  src: url('./assets/fonts/AeonikPro-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  ascent-override: 75%;
+  descent-override: 25%;
+}
+
+@font-face {
+  font-family: 'Aeonik Pro Caps';
   src: url('./assets/fonts/AeonikPro-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
@@ -9,7 +39,7 @@
 }
 
 @font-face {
-  font-family: 'Aeonik Pro';
+  font-family: 'Aeonik Pro Caps';
   src: url('./assets/fonts/AeonikPro-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
@@ -35,10 +65,18 @@
   --shadow-card: 0 8px 24px rgba(25, 28, 31, 0.06);
   --font-display: 'Aeonik Pro', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Aeonik Pro', ui-sans-serif, system-ui, sans-serif;
+  --font-caps: 'Aeonik Pro Caps', ui-sans-serif, system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+/* Uppercase text keeps the font's own cap-friendly metrics, so a centred
+   label, chip or initial needs no per-component logic. Unlayered on purpose:
+   the rule has to outrank the `font-sans`/`font-display` utilities. */
+.uppercase {
+  font-family: var(--font-caps);
+}
+
+:root {
     --canvas: #000000;
     --surface: #161618;
     --surface-soft: #1f2126;
@@ -76,6 +114,7 @@
 
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
+  --font-caps: var(--font-caps);
 }
 
 @layer base {

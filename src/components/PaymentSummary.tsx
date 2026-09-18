@@ -28,7 +28,7 @@ function PaymentSummary({ payment }: PaymentSummaryProps) {
         <div className="flex items-center gap-3">
           <span
             aria-hidden
-            className="bg-surface-soft font-display flex size-11 shrink-0 items-center justify-center rounded-full text-lg font-medium"
+            className="bg-surface-soft font-caps flex size-11 shrink-0 items-center justify-center rounded-full text-lg font-medium"
           >
             {initial(payment.name)}
           </span>
