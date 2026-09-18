@@ -13,7 +13,7 @@ const devHttps =
     : undefined;
 
 export default defineConfig({
-  base: '/2upn2revolut/',
+  base: '/upn2revolut/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },

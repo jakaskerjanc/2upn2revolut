@@ -8,7 +8,7 @@ export const LANGUAGES: readonly Lang[] = ['sl', 'en'];
 
 const DICTIONARIES: Record<Lang, Record<TranslationKey, string>> = { sl, en };
 
-const STORAGE_KEY = '2upn2revolut.lang';
+const STORAGE_KEY = 'upn2revolut.lang';
 
 export function translate(lang: Lang, key: TranslationKey): string {
   return DICTIONARIES[lang][key];

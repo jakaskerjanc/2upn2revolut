@@ -1,10 +1,10 @@
-# 2upn2revolut
+# upn2revolut
 
 Revolut can scan EPC (SEPA) QR codes but not Slovenian UPN QR codes. This phone tool bridges
 the gap: scan the UPN QR on a paper bill, it converts it to EPC, and you save the EPC QR as
 an image to import into Revolut.
 
-**https://jakaskerjanc.github.io/2upn2revolut/**
+**https://jakaskerjanc.github.io/upn2revolut/**
 
 ## How it works
 
@@ -34,13 +34,11 @@ reference field; Slovenian `SI`-model references go in the unstructured field, a
 payment purpose, so a long purpose text can never truncate the reference the creditor
 reconciles on.
 
-Full design notes: [`docs/superpowers/specs/2026-09-07-phone-only-rework-design.md`](docs/superpowers/specs/2026-09-07-phone-only-rework-design.md).
-
 ## Development
 
 ```bash
 pnpm install
-pnpm dev        # http://localhost:5173/2upn2revolut/
+pnpm dev        # http://localhost:5173/upn2revolut/
 pnpm test       # vitest
 pnpm typecheck
 pnpm build
