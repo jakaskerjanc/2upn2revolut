@@ -2,26 +2,34 @@
 
 **Date:** 2026-09-17
 **Status:** Approved for planning
+**Revision:** updated after this branch was rebased onto the phone-only offline
+rework (`v2`). `DesktopView` replaces the pairing `HostView`, and the phone flow is
+now scan → save → open Revolut. The flow, state and module decisions of the
+2026-09-07 specs stand; this document supersedes only their visual direction.
 **Supersedes:** the "Visual direction" section of
-`docs/superpowers/specs/2026-08-24-2upn2revolut-design.md` (everything else in that
-document still holds)
+`docs/superpowers/specs/2026-08-24-2upn2revolut-design.md` and the surface/layout
+notes in `2026-09-07-phone-only-rework-design.md` /
+`2026-09-07-desktop-image-mode-design.md` where they conflict (everything else in
+those documents still holds)
 
 ## Goal
 
 Reskin and restructure the interface so it reads unmistakably as the Revolut app,
-without touching the working pairing/QR pipeline.
+without touching the working conversion/QR pipeline.
 
 - Adopt Revolut's brand language: type, colour, pill geometry, two-mode canvas.
 - Support Revolut **dark** and **light**, following the system preference.
-- Restructure the screens (gradient hero + sheet on the phone, two-column login-style
-  desktop), not just recolour them.
-- Leave `core/`, `transport/`, `session/` and i18n strings untouched.
+- Restructure the screens (one canvas design on both devices: a single-column handset
+  layout and a two-column conversion/hand-off desktop input), not just recolour them.
+- Leave `core/`, `session/`, `device.ts` and i18n strings untouched.
 
 ## Non-goals
 
-- No new features, routes, or state. The Pair → Scan → Pay derivation is unchanged.
+- No new features, routes, or state. The phone's scan → convert → save → open Revolut
+  chain and the desktop's image → EPC QR chain are unchanged.
 - No new i18n strings (all copy reuses existing keys).
-- No change to QR payloads, deep-link behaviour, or the camera lifecycle.
+- No change to QR payloads, deep-link behaviour, the camera lifecycle, or `?device=`
+  detection.
 - No clone of Revolut's navigation (bottom tab bar, account cards) — the app has one
   job and no accounts.
 
@@ -95,20 +103,12 @@ Defined once in `src/index.css` as raw custom properties on `:root`, flipped in
 `ink` + `on-ink` gives the primary CTA for free and auto-inverts: `bg-ink text-on-ink`
 is a black pill in light and a white pill in dark, matching Revolut's inverse CTA.
 
-### Brand constants (theme-independent)
-
-| Token | Value | Role |
-| --- | --- | --- |
-| `hero-from` | `#530DFC` | gradient start |
-| `hero-to` | `#7F19FE` | gradient end |
-
-The violet hero is the app signature and stays vivid in both modes; only the surface
-beneath it flips. `--shadow-card` is defined per theme (soft in light, near-none in
-dark) and exposed as `shadow-card`.
+`--shadow-card` is defined per theme (soft in light, near-none in dark) and exposed as
+`shadow-card`.
 
 ### Radii and fonts
 
-`--radius-field: 12px`, `--radius-card: 20px`, `--radius-sheet: 28px`, pill via
+`--radius-field: 12px`, `--radius-card: 20px`, pill via
 `rounded-full`. `--font-display: 'Aeonik Pro', …`, `--font-sans: 'Aeonik Pro', …`.
 
 ## Typography scale
@@ -117,7 +117,6 @@ dark) and exposed as `shadow-card`.
 | --- | --- |
 | Display XL | 48px / 500 / −0.03em (desktop headline) |
 | Display L | 40px / 500 / −0.03em |
-| Display M (phone amount) | 48px / 500 / −0.035em, tabular |
 | Heading L | 32px / 500 / −0.02em |
 | Heading M | 24px / 500 / −0.02em |
 | Heading S | 20px / 500 / −0.01em |
@@ -132,105 +131,126 @@ headings opt into `font-display`.
 ## Components
 
 - **Button** (`ui/button.tsx`) — pill. Variants: `default` (`bg-ink text-on-ink`),
-  `accent`, `soft` (`bg-surface-soft`), `outline` (`border-line`), `ghost`, and a
-  `hero` variant (translucent white, for on-gradient use). Sizes `sm` 36px, `default`
-  48px, `lg` 56px, `icon` 44px.
-- **Card** (`ui/card.tsx`) — 20px radius, `border-line`, `bg-surface`, `shadow-card`.
-  Adds `CardHeader` and `CardTitle`.
-- **Badge** (`ui/badge.tsx`) — pill chip; variants `accent`, `success`, `neutral`,
-  `hero`.
-- **QrCode** (`components/QrCode.tsx`) — white card, 20px radius, `shadow-card`.
+  `accent`, `soft` (`bg-surface-soft`), `outline` (`border-line`), `ghost`. Sizes
+  `sm` 36px, `default` 48px, `lg` 56px, `icon` 44px.
+- **Card** (`ui/card.tsx`) — 20px radius, `border-line`, `bg-surface`, `shadow-card`;
+  keeps `CardContent`.
+- **Badge** (`ui/badge.tsx`) — pill chip, unchanged markup; the token swap carries the
+  retheme. It carries the "EPC code ready" status chip on the result screens.
+- **QrCode** (`components/QrCode.tsx`) — white card, 20px radius, `shadow-card`; the
+  one component renders all three in-app codes (the EPC QR, the `revolut://` deep-link
+  QR on the desktop result, and the app-URL hand-off QR on the desktop input).
   **Correctness preserved:** white background and 4-module quiet zone in both themes,
   black-on-white rendering unchanged.
-- **StepPills** (new `components/StepPills.tsx`, replaces `Stepper.tsx`) — three pill
-  segments derived from the same `activeIndex`; `tone="hero"` for on-gradient use.
+- **StepStatus** (new `components/StepStatus.tsx`, replaces `Stepper.tsx`) — a static
+  progress indicator, not a control: a filled dot + full-contrast label for the current
+  step, a hollow dot + muted label for the other, separated by a hairline. Labels are
+  `step.scan` → `step.pay` derived from the same `activeIndex`. It deliberately avoids
+  the segmented-control language of `LanguageToggle` so it can never read as clickable.
+  Desktop shows the same two labels: uploading an image is the desktop analogue of
+  scanning.
 - **PaymentSummary** (`components/PaymentSummary.tsx`) — restructured from a `<dl>` into
   Revolut transaction-detail rows: circular initial avatar, label/value rows,
-  `tabular-nums` on values.
-- **LanguageToggle** — pill segmented control; `tone` prop for hero placement.
-- **Hero** (new `components/Hero.tsx`) — violet gradient band with a soft radial
-  highlight; composes a header row, a headline block, and optional centre content.
-- **Sheet** (new `components/Sheet.tsx`) — `bg-surface`, 28px top radius, negative top
-  margin so it overlaps the hero; safe-area bottom padding.
-- **Spinner** (new, inline in view or small component) — gradient-agnostic ring.
+  `tabular-nums` on values, still filtered to non-empty fields.
+- **LanguageToggle** — pill segmented control, the only interactive one in the app.
+- **AppHeader** (new `components/AppHeader.tsx`) — wordmark + `LanguageToggle`; shared by
+  both views so phone and desktop carry identical chrome.
+- **Footer** — both views close with the `StepStatus` row centred at the bottom of the
+  page (safe-area bottom padding on the phone).
 - **AppShell** — reduced to the theme canvas and a `children` slot. Views own their
-  headers and step pills; the `activeIndex`/`onStepChange` plumbing in `App.tsx` is
-  removed since each view derives its own step.
-- **Toaster** and **Tooltip** retheme to the new tokens.
+  headers, step status and footers; the `activeIndex`/`onStepChange` plumbing in
+  `App.tsx` is removed since each view derives its own step (`phoneStep`,
+  `currentPayment`) and places `StepStatus` itself.
+- **Toaster** and **Tooltip** need no edits — both already paint from the semantic
+  tokens (`bg-surface`, `text-ink`, `border-line`), so the token swap restyles them.
 
 ## Screens
 
-### Desktop (HostView)
+Device branching is `detectDevice()`'s call and is unchanged; each view below is one
+side of it.
+
+### Desktop (DesktopView)
 
 Canvas `canvas`, with a decorative blue radial glow (`.canvas-glow`) in **dark** only;
-light is the white catalogue. A header carries the wordmark, `StepPills`, and
-`LanguageToggle`.
+light is the white catalogue. A header carries the wordmark and `LanguageToggle`; the
+`StepStatus` row sits in a centred footer at the bottom of the page.
 
-- **Pair** — two-column (stacks under `lg`): left is the headline (`host.pairTitle`),
-  subtext (`host.pairInstruction`), a connection-status chip (`host.pairPending`), and
-  the hint (`host.pairHint`); right is the pairing QR card.
-- **Waiting** — centred: a connected chip (`host.waitingTitle`) above a large headline
-  (`host.waitingInstruction`).
-- **Display** — centred: headline (`host.displayTitle`), instruction
-  (`host.displayInstruction`), the large EPC QR, a `PaymentSummary` card, and, when more
-  than one payment exists, the recent thumbnails as a rail (`host.recent`).
+`currentPayment(state)` drives the two screens: no payment is **input**, a payment is
+**result**.
 
-The coarse-pointer warning (`host.mobileWarning`) renders as a chip above the headline.
+- **Input** — two-column (stacks under `lg`): left is the conversion block — headline
+  (`desktop.uploadTitle`), instruction (`desktop.uploadInstruction`), and the
+  dashed-border drop zone holding the `Choose image` button (`desktop.uploadButton`),
+  the hint (`desktop.uploadHint`), the busy line (`desktop.decoding`) and any inline
+  ingest error (`error.noQrInImage`, `error.notUpn`, `error.upnMalformed`,
+  `error.epcAmount`, `error.epcIban`); right is the phone hand-off — the
+  `desktop.orPhoneTitle` heading over the app-URL `QrCode` (`desktop.qrLabel`,
+  `desktop.qrHint`). Upload, paste and drop all route through the one handler; the
+  redesign is layout and skin only.
+- **Result** — centred: a ready chip (`phone.ready`), the large EPC QR
+  (`desktop.epcQrLabel`, 240px) above `desktop.resultInstruction`, the smaller
+  `revolut://` QR (`desktop.revolutQrLabel`, 150px) with `desktop.revolutQrCaption`,
+  the `PaymentSummary` card, and an outline `Convert another`
+  (`desktop.convertAnother`) that resets to input.
 
 ### Phone (PhoneView)
 
-`Hero` over `Sheet`, the signature screenshot-2 structure.
+The same canvas as desktop — `canvas-glow bg-canvas`, `AppHeader`, a centred single
+column, and the same bottom `StepStatus` footer — so a handset sees the identical
+workspace, only narrower.
 
-- **Connect** — hero: `phone.connectingTitle` with a spinner; sheet:
-  `phone.connectingInstruction`.
-- **Scan** — hero: `phone.scanTitle`; sheet: the live camera `<video>` in a rounded
-  20px frame, `phone.scanInstruction`, and the styled camera-error state
+- **Scan** — headline (`phone.scanTitle`), instruction (`phone.scanInstruction`), then
+  the live camera `<video>` in a rounded 20px frame, or the styled camera-error state
   (`phone.cameraDenied` / `cameraNotFound` / `cameraInsecure`, `phone.cameraDeniedHelp`,
   `phone.cameraRetry`).
-- **Pay** — hero: `phone.sent` as the eyebrow, the **amount** as the large display
-  number (Revolut balance treatment), and a translucent pill with the recipient name;
-  sheet: the primary `Open Revolut` button (or the `phone.revolutFailed` fallback plus
-  `phone.revolutStore` link), the `phone.payInstruction` caption, the two instruction
-  images as cards labelled `phone.epcInstructions`, a `PaymentSummary` card, and the
-  `phone.scanAnother` soft button.
+- **Pay** — the desktop result structure: a ready chip (`phone.ready`), the EPC QR as the
+  primary artifact (`phone.saveInstruction` label, 240px), `phone.saveHelp`, the primary
+  `Save EPC code` button (`phone.saveButton`), `phone.payInstruction`, the
+  `Open Revolut` button (`phone.openRevolut`) or the `phone.revolutFailed` fallback plus
+  `phone.revolutStore` link, the `PaymentSummary` card, and the `phone.scanAnother` soft
+  button.
 
-The camera `<video>` keeps `playsInline`, `muted`, and its accessible label. The
-Revolut deep link still fires only from a direct tap.
+The save must run straight off the tap (iOS blocks share/download otherwise); the
+on-screen QR is always present as the long-press fallback. The camera `<video>` keeps
+`playsInline`, `muted`, and its accessible label. The Revolut deep link still fires
+only from a direct tap.
 
 ## Accessibility
 
 - `:focus-visible` ring uses `accent`, 2px, offset 2px.
-- `aria-current="step"` moves from the old dots to the active `StepPills` segment.
-- Hero text stays ≥4.5:1 on the gradient (`#530DFC`→`#7F19FE` against white).
-- The QR canvas keeps `role="img"` and an `aria-label`.
+- `aria-current="step"` sits on the active `StepStatus` label; the dots and separator
+  are `aria-hidden`.
+- The QR canvases keep `role="img"` and an `aria-label`; the camera `<video>` keeps
+  its `phone.scanTitle` label.
 - Motion is limited to colour/opacity transitions; no new animation.
 
 ## Verification
 
-- `pnpm test` — existing `core/`, `transport/`, `session/`, `router` suites must stay
-  green; no tests are deleted.
+- `pnpm test` — existing `core/`, `session/` (ingest, revolut, save, steps), `device`
+  and `i18n` suites must stay green; no tests are deleted.
 - `pnpm typecheck`, `pnpm build`.
-- Manual, in the preview browser: desktop dark + light (pair, waiting, display), phone
-  dark + light (connect, scan, pay), at desktop and phone viewport widths; screenshots
-  captured for review.
-- Confirm the QR still scans (white card, quiet zone intact) and camera states render.
+- Manual, in the preview browser: both views are reachable at will via
+  `?device=desktop` / `?device=phone`; desktop dark + light (input, result), phone dark
+  + light (scan, pay), at desktop and phone viewport widths; screenshots captured for
+  review.
+- Confirm the EPC, hand-off and `revolut://` QRs still scan (white card, quiet zone
+  intact) and camera states render.
 
 ## Risks
 
 - **Licensed type.** Aeonik Pro is committed to this repository, so its redistribution is
   bounded by the web licence held for the project. The family ships only Regular and
   Medium: 600-weight UI is mapped to Medium, and no weight is synthesized.
-- **Dark phone sheet.** The gradient hero sits on a `#161618` sheet in dark; contrast
-  is high, but this is the least "screenshot-verified" surface, so it gets the most
-  visual review.
 - **Interface churn.** `AppShell`/`App` lose the `activeIndex` plumbing; contained to
-  two files and covered by typecheck.
+  two files and covered by typecheck. Because `?device=` can force either view at any
+  viewport, both must hold up at phone *and* desktop widths (the desktop input stacks
+  under `lg`).
 
 ## Files touched
 
-`index.html`, `src/index.css`, `src/App.tsx`, `src/components/AppShell.tsx`,
-`src/components/LanguageToggle.tsx`, `src/components/PaymentSummary.tsx`,
-`src/components/QrCode.tsx`, `src/components/ui/{button,card,badge,toaster,tooltip}.tsx`,
-`src/views/{HostView,PhoneView}.tsx`, plus new `src/components/{Hero,Sheet,StepPills}.tsx`
-and `src/assets/fonts/AeonikPro-{Regular,Medium}.woff2`;
-`Stepper.tsx` deleted. No changes to `core/`, `transport/`, `session/`, `i18n/`.
+`index.html` (Google Fonts links removed), `src/index.css`, `src/App.tsx`,
+`src/components/AppShell.tsx`,
+`src/components/{AppHeader,LanguageToggle,PaymentSummary,QrCode,StepStatus}.tsx`,
+`src/components/ui/{button,card}.tsx`, `src/views/{DesktopView,PhoneView}.tsx`, and
+`src/assets/fonts/AeonikPro-{Regular,Medium}.woff2`; `Stepper.tsx`, `Hero.tsx` and
+`Sheet.tsx` deleted. No changes to `core/`, `session/`, `device.ts`, `i18n/`.
