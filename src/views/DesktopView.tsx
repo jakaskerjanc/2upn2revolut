@@ -6,6 +6,7 @@ import { AppHeader } from '../components/AppHeader';
 import { PaymentSummary } from '../components/PaymentSummary';
 import { QrCode } from '../components/QrCode';
 import { StepStatus } from '../components/StepStatus';
+import { cn } from '../lib/cn';
 import { ingestErrorKey, ingestUpn } from '../session/ingest';
 import { resolveRevolutLink } from '../session/revolut';
 import { decodeImageFile } from '../session/scanner';
@@ -31,6 +32,7 @@ function DesktopView() {
   const sent = currentPayment(state);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<TranslationKey | null>(null);
+  const [showLaunchQr, setShowLaunchQr] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const decodingRef = useRef(false);
 
@@ -87,15 +89,48 @@ function DesktopView() {
             {t('desktop.resultInstruction')}
           </p>
           <div className="flex max-w-sm flex-col items-center gap-3">
-            <QrCode value={revolutLink} size={150} label={t('desktop.revolutQrLabel')} />
-            <p className="text-center text-sm text-muted">{t('desktop.revolutQrCaption')}</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-expanded={showLaunchQr}
+              aria-controls="revolut-launch-qr"
+              onClick={() => setShowLaunchQr((open) => !open)}
+            >
+              {t('desktop.revolutHelpToggle')}
+              <svg
+                aria-hidden
+                viewBox="0 0 16 16"
+                className={cn('transition-transform', showLaunchQr && 'rotate-180')}
+              >
+                <path
+                  d="m4 6 4 4 4-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Button>
+            {showLaunchQr && (
+              <div id="revolut-launch-qr" className="flex flex-col items-center gap-3">
+                <QrCode value={revolutLink} size={150} label={t('desktop.revolutQrLabel')} />
+                <p className="text-center text-sm text-muted">{t('desktop.revolutHelpCaption')}</p>
+              </div>
+            )}
           </div>
           <Card className="w-full max-w-sm">
             <CardContent>
               <PaymentSummary payment={sent.payment} />
             </CardContent>
           </Card>
-          <Button variant="outline" onClick={resetPayments}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowLaunchQr(false);
+              resetPayments();
+            }}
+          >
             {t('desktop.convertAnother')}
           </Button>
         </main>
