@@ -2,17 +2,14 @@ import { cn } from '../lib/cn';
 import { useT } from '../session/useT';
 
 interface StepperProps {
-  /** 0 = Pair, 1 = Scan, 2 = Pay. */
+  /** 0 = Scan, 1 = Pay. */
   activeIndex: number;
 }
 
-/**
- * Both devices render the same three dots and each shows only its own next
- * action. It is derived from real connection state, so it cannot drift.
- */
+/** Two dots for the two phone steps; derived from local state, so it can't drift. */
 function Stepper({ activeIndex }: StepperProps) {
   const t = useT();
-  const labels = [t('step.pair'), t('step.scan'), t('step.pay')];
+  const labels = [t('step.scan'), t('step.pay')];
 
   return (
     <ol className="flex items-center gap-3" aria-label={labels.join(' → ')}>
@@ -31,10 +28,7 @@ function Stepper({ activeIndex }: StepperProps) {
               )}
             />
             <span
-              className={cn(
-                'text-sm tracking-wide',
-                active ? 'text-ink font-medium' : 'text-muted',
-              )}
+              className={cn('text-sm tracking-wide', active ? 'text-ink font-medium' : 'text-muted')}
             >
               {label}
             </span>

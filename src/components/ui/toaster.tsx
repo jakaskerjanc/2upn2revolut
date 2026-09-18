@@ -1,6 +1,6 @@
 import { Toaster as SonnerToaster } from 'sonner';
 
-/** Toasts carry transport errors. Theme follows the system, like the rest of the app. */
+/** Toasts carry local notices (camera, UPN-malformed, EPC-build, save errors). Theme follows the system, like the rest of the app. */
 function Toaster() {
   return (
     <SonnerToaster
