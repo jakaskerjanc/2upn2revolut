@@ -13,7 +13,6 @@ const buttonVariants = cva(
         soft: 'bg-surface-soft text-ink hover:bg-line/60',
         outline: 'border border-line bg-surface text-ink hover:bg-canvas',
         ghost: 'text-muted hover:bg-line/40 hover:text-ink',
-        hero: 'bg-white/15 text-white backdrop-blur-sm hover:bg-white/25',
       },
       size: {
         sm: 'h-9 px-4 text-sm',

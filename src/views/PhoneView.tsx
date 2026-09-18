@@ -1,14 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import { Hero } from '../components/Hero';
-import { LanguageToggle } from '../components/LanguageToggle';
+import { AppHeader } from '../components/AppHeader';
 import { PaymentSummary } from '../components/PaymentSummary';
 import { QrCode } from '../components/QrCode';
-import { Sheet } from '../components/Sheet';
-import { StepStatus } from '../components/StepStatus';
-import { formatEuros } from '../core/payment';
 import { dataUrlToBlob, qrPngDataUrl } from '../core/qr-image';
 import { attachScanner, scanAnother } from '../session/phone-session';
 import { saveQrImage } from '../session/save';
@@ -66,39 +63,12 @@ function PhoneView() {
   }, []);
 
   return (
-    <div className="bg-canvas flex min-h-dvh flex-col">
-      <Hero>
-        <header className="flex items-center justify-between gap-4">
-          <span className="text-sm font-medium tracking-tight">{t('app.title')}</span>
-          <LanguageToggle tone="hero" />
-        </header>
-        <div className="flex flex-col gap-3">
-          <StepStatus activeIndex={STEP_INDEX[step]} tone="hero" />
-          {step === 'pay' && sent ? (
-            <>
-              <p className="text-xs font-medium tracking-[0.15em] text-white/80 uppercase">
-                {t('phone.ready')}
-              </p>
-              <p className="font-display text-5xl leading-none font-medium tracking-[-0.035em] tabular-nums">
-                EUR {formatEuros(sent.payment.amountCents)}
-              </p>
-              {sent.payment.name.trim().length > 0 && (
-                <p className="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1 text-sm">
-                  {sent.payment.name}
-                </p>
-              )}
-            </>
-          ) : (
-            <h1 className="font-display text-3xl leading-tight font-medium tracking-[-0.02em]">
-              {t('phone.scanTitle')}
-            </h1>
-          )}
-        </div>
-      </Hero>
-
-      <Sheet className="flex-1">
+    <div className="canvas-glow bg-canvas min-h-dvh">
+      <AppHeader activeIndex={STEP_INDEX[step]} />
+      <main className="mx-auto flex w-full max-w-5xl flex-col items-center gap-6 px-5 pb-16 sm:px-8">
         {step === 'pay' && sent ? (
           <>
+            <Badge>{t('phone.ready')}</Badge>
             <QrCode value={sent.epc} size={240} label={t('phone.saveInstruction')} />
             <p className="max-w-sm text-center text-sm text-muted">{t('phone.saveHelp')}</p>
             <Button size="lg" onClick={onSave}>
@@ -140,6 +110,10 @@ function PhoneView() {
           </div>
         ) : (
           <>
+            <h1 className="font-display text-center text-3xl leading-tight font-medium tracking-[-0.02em]">
+              {t('phone.scanTitle')}
+            </h1>
+            <p className="max-w-sm text-center text-sm text-muted">{t('phone.scanInstruction')}</p>
             <video
               ref={videoRef}
               playsInline
@@ -147,12 +121,9 @@ function PhoneView() {
               aria-label={t('phone.scanTitle')}
               className="rounded-card w-[min(88vw,26rem)] bg-ink/90 object-cover shadow-sm"
             />
-            <p className="max-w-sm text-center text-sm text-muted">
-              {t('phone.scanInstruction')}
-            </p>
           </>
         )}
-      </Sheet>
+      </main>
     </div>
   );
 }
